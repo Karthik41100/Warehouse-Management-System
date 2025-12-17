@@ -1,0 +1,16 @@
+# --- Frontend (React) ---
+node_modules/
+build/
+dist/
+.env
+.DS_Store
+
+# --- Backend (.NET) ---
+bin/
+obj/
+.vs/
+*.user
+appsettings.Development.json
+
+# --- General ---
+*.log

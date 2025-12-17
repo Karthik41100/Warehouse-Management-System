@@ -7,10 +7,13 @@ const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setLoading] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
+
+    setLoading(true);
 
     try {
       const data = await login(username, password);
@@ -52,8 +55,13 @@ const Login = () => {
               onChange={(e) => setPassword(e.target.value)}
             ></input>
           </div>
-          <button type="submit" className="btn btn-primary w-100">
-            Login
+          <button
+            type="submit"
+            className="btn btn-primary w-100"
+            disabled={isLoading}
+            style={{ opacity: isLoading ? 0.7 : 1 }}
+          >
+            {isLoading ? "Logging in..." : "Login"}
           </button>
         </form>
         <div className="mt-3 text-center">

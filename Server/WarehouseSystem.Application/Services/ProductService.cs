@@ -24,7 +24,7 @@ namespace WarehouseSystem.Application.Services
 
             if(!string.IsNullOrEmpty(searchTerm))
             {
-                query.Where(p => p.Name.Contains(searchTerm));
+               query = query.Where(p => p.Name.Contains(searchTerm));
             }
             return await query
                 .OrderBy(p => p.Id)

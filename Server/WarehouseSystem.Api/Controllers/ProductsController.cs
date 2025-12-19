@@ -25,7 +25,8 @@ namespace WarehouseSystem.Api.Controllers
         [Authorize(Roles = "Admin,User")]
         public async Task<IActionResult> GetProducts([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 5, [FromQuery] string? searchTerm = null)
         {
-            var products = await _product.GetAllProducts(pageNumber, pageSize, searchTerm);
+             var products = await _product.GetAllProducts(pageNumber, pageSize, searchTerm);
+
             return Ok(products);
         }
         [HttpGet("{id}")]

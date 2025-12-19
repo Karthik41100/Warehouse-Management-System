@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 const ProductList = () => {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1);
   const pageSize = 5;
 
@@ -14,7 +15,7 @@ const ProductList = () => {
     const fetchProducts = async () => {
       try {
         const response = await api.get(
-          `/Products?pageNumber=${page}&pageSize=${pageSize}`
+          `/Products?pageNumber=${page}&pageSize=${pageSize}&searchTerm=${searchTerm}`
         );
         setProducts(response.data);
       } catch (error) {
@@ -22,8 +23,12 @@ const ProductList = () => {
         console.error(error);
       }
     };
-    fetchProducts();
-  }, [page, pageSize]);
+    const timer = setTimeout(() => {
+      fetchProducts();
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [page, pageSize, searchTerm]);
 
   const handleDelete = async (id) => {
     if (!window.confirm("Are you confirm want to delete this product?")) {
@@ -46,31 +51,23 @@ const ProductList = () => {
   const handlePrev = () => {
     if (page > 1) setPage(page - 1);
   };
-
-  const handleLogout = () => {
-    if (!window.confirm("Are you surre want to logout?")) return;
-
-    localStorage.removeItem("token");
-    localStorage.removeItem("role");
-
-    navigate("/login");
-  };
   return (
     <div className="container mt-5">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2>Product Dasboard</h2>
-        <button className="btn btn-outline-danger" onClick={handleLogout}>
-          Logout
-        </button>
       </div>
-      {userRole === "Admin" && (
-        <button
-          className="btn btn-primary mb-2"
-          onClick={() => navigate("/add")}
-        >
-          + Add Product
-        </button>
-      )}
+      <div className="mb-3">
+        <input
+          type="text"
+          className="form-control"
+          placeholder="Search products by name.."
+          value={searchTerm}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setPage(1);
+          }}
+        />
+      </div>
       <table className="table table-striped table-hover shadow">
         <thead className="table-dark">
           <tr>
@@ -108,7 +105,7 @@ const ProductList = () => {
           ) : (
             <tr>
               <td
-                colSpan={userRole === "Admin" ? "3" : "4"}
+                colSpan={userRole === "Admin" ? "4" : "3"}
                 className="text-center"
               >
                 No Products Found

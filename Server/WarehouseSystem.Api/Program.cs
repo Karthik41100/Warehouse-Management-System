@@ -70,13 +70,15 @@ builder.Services.AddSwaggerGen(options =>
 // It reads "DefaultConnection" from appsettings.json
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
+    b => b.MigrationsAssembly("WarehouseSystem.Infrastructure")));
 
 // E. Dependency Injection (Register your Custom Services)
 // "When a Controller asks for IAuthService, give them AuthService"
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
 
 // Configure JWT Token
 

@@ -32,7 +32,7 @@ namespace WarehouseSystem.Tests
         [Test]
         public async Task GetProducts_Should_Return_200_With_List()
         {
-            _mockService.Setup(s => s.GetAllProducts(1, 10))
+            _mockService.Setup(s => s.GetAllProducts(1, 10, null))
                 .ReturnsAsync(new List<Product>
                 {
                     new Product {Name = "PS5", Price = 500}

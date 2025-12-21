@@ -18,9 +18,10 @@ namespace WarehouseSystem.Application.Services
         {
             _context = context;
         }
-        public async Task<IEnumerable<Product>> GetAllProducts(int pageNumber, int pageSize, string?searchTerm)
+        public async Task<IEnumerable<ProductDto>> GetAllProducts(int pageNumber, int pageSize, string?searchTerm)
         {
-            var query = _context.Products.AsQueryable();
+            var query = _context.Products
+                .AsQueryable();
 
             if(!string.IsNullOrEmpty(searchTerm))
             {
@@ -30,6 +31,16 @@ namespace WarehouseSystem.Application.Services
                 .OrderBy(p => p.Id)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
+                .Select(p => new ProductDto
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Price = p.Price,
+                    StockQuantity = p.Quantity,
+                    CategoryId = p.CategoryId ?? 0,
+
+                    CategoryName = p.Category != null ? p.Category.Name : "Uncategorized"
+                })
                 .ToListAsync();
         }
         public async Task<Product> AddProduct(ProductDto productDto)
@@ -39,7 +50,8 @@ namespace WarehouseSystem.Application.Services
                 Name = productDto.Name,
                 Price = productDto.Price,
                 Quantity = productDto.StockQuantity,
-                RowVersion = new byte[0]
+                RowVersion = new byte[0],
+                CategoryId = productDto.CategoryId
             };
 
             await _context.Products.AddAsync(product);
@@ -47,9 +59,22 @@ namespace WarehouseSystem.Application.Services
             return product;
         }
 
-        public async Task<Product?> GetProductById(int id)
+        public async Task<ProductDto?> GetProductById(int id)
         {
-            return await _context.Products.FindAsync(id);
+            return await _context.Products
+                .Include(p => p.Category)
+                .Where(p => p.Id == id)
+                .Select(p => new ProductDto
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Price = p.Price,
+                    StockQuantity = p.Quantity,
+
+                    CategoryId = p.CategoryId ?? 0,
+                    CategoryName = p.Category != null ? p.Category.Name : "Uncategorized"
+                })
+                .FirstOrDefaultAsync();
         }
         public async Task UpdateProduct(int id, ProductDto productDto)
         {

@@ -14,6 +14,9 @@ namespace WarehouseSystem.Domain.Entities
         public decimal Price {  get; set; }
         public int Quantity { get; set; }
 
+        public int? CategoryId { get; set; }
+        public Category? Category { get; set; }
+
         //optimistic concurreny token
         [Timestamp]
         public byte[] RowVersion { get; set; }

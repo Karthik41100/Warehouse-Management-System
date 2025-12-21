@@ -9,15 +9,24 @@ const EditProduct = () => {
   const [price, setPrice] = useState("");
   const [stock, setStock] = useState("");
 
+  const [categoryId, setCategoryId] = useState("");
+  const [categories, setCategories] = useState([]);
+
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await api.get(`/Products/${id}`);
-        const p = response.data;
-        console.log(p);
+        const [catResponse, prodResponse] = await Promise.all([
+          api.get("/Categories"),
+          api.get(`/Products/${id}`),
+        ]);
+
+        console.log("Product Data from Api ", prodResponse.data);
+        const p = prodResponse.data;
+        setCategories(catResponse.data);
         setName(p.name);
         setPrice(p.price);
         setStock(p.StockQuantity);
+        setCategoryId(p.categoryId);
       } catch (err) {
         alert("Error loading product");
         navigate("/products");
@@ -32,9 +41,11 @@ const EditProduct = () => {
 
     try {
       await api.put(`/Products/${id}`, {
+        id: parseInt(id),
         name: name,
         price: parseFloat(price),
         StockQuantity: parseInt(stock),
+        categoryId: parseInt(categoryId),
       });
       alert("Product Updated");
       navigate("/products");
@@ -57,6 +68,22 @@ const EditProduct = () => {
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
+          </div>
+          <div className="mb-3">
+            <label className="form-label">Category</label>
+            <select
+              className="form-select"
+              value={categoryId}
+              onChange={(e) => setCategoryId(e.target.value)}
+              required
+            >
+              <option value="">-- Select Category --</option>
+              {categories.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
           </div>
           <div className="mb-3">
             <label>Price</label>

@@ -31,7 +31,7 @@ namespace WarehouseSystem.Api.Controllers
         }
         [HttpGet("{id}")]
         [Authorize(Roles = "Admin, User")]
-        public async Task<ActionResult<Product>> GetProduct(int id)
+        public async Task<ActionResult<ProductDto>> GetProduct(int id)
         {
             var product = await _product.GetProductById(id);
 

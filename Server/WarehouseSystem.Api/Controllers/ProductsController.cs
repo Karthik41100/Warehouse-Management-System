@@ -74,5 +74,11 @@ namespace WarehouseSystem.Api.Controllers
             await _product.DeleteProduct(id);
             return NoContent();
         }
+        [HttpGet("stats")]
+        public async Task<ActionResult<DashboardStatsDto>> GetStats()
+        {
+            var stats = await _product.GetDashboardStatsAsync();
+            return Ok(stats);
+        }
     }
 }

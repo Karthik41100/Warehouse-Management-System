@@ -15,5 +15,6 @@ namespace WarehouseSystem.Application.Interfaces
         Task<Product?> GetProductById(int id);
         Task UpdateProduct(int id, ProductDto productDto);
         Task DeleteProduct(int id);
+        Task<DashboardStatsDto> GetDashboardStatsAsync();
     }
 }

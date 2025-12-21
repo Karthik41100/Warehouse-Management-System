@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import api from "../../Services/api";
 import { useNavigate } from "react-router-dom";
+import { FaEdit, FaTrash, FaBoxOpen } from "react-icons/fa";
+import DashboardStats from "../DashboardStats";
 
 const ProductList = () => {
   const navigate = useNavigate();
@@ -52,85 +54,146 @@ const ProductList = () => {
     if (page > 1) setPage(page - 1);
   };
   return (
-    <div className="container mt-5">
+    <div className="container mt-4">
+      {/* 1. Header Section */}
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2>Product Dasboard</h2>
+        <h2>Product Dashboard</h2>
+        {/* We moved Logout to Navbar, so no button here */}
       </div>
-      <div className="mb-3">
-        <input
-          type="text"
-          className="form-control"
-          placeholder="Search products by name.."
-          value={searchTerm}
-          onChange={(e) => {
-            setSearchTerm(e.target.value);
-            setPage(1);
-          }}
-        />
+
+      {/* 2. Stats Cards */}
+      <DashboardStats />
+
+      {/* 3. Search & Add Button */}
+      <div className="row mb-3">
+        <div className="col-md-8">
+          <input
+            type="text"
+            className="form-control shadow-sm"
+            placeholder="Search products by name..."
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setPage(1);
+            }}
+          />
+        </div>
+        <div className="col-md-4 text-end">
+          {userRole === "Admin" && (
+            <button
+              className="btn btn-primary shadow-sm"
+              onClick={() => navigate("/add")}
+            >
+              + Add Product
+            </button>
+          )}
+        </div>
       </div>
-      <table className="table table-striped table-hover shadow">
-        <thead className="table-dark">
-          <tr>
-            <th>Name</th>
-            <th>Price</th>
-            <th>Quantity</th>
-            {userRole === "Admin" && <th>Action</th>}
-          </tr>
-        </thead>
-        <tbody>
-          {products.length > 0 ? (
-            products.map((p) => (
-              <tr key={p.id}>
-                <td>{p.name}</td>
-                <td>{p.price}</td>
-                <td>{p.quantity}</td>
+
+      {/* 4. The Pro Table Card */}
+      <div className="card shadow-sm border-0 rounded overflow-hidden">
+        <div className="card-body p-0">
+          <table className="table table-hover align-middle mb-0">
+            <thead className="bg-light text-secondary">
+              <tr>
+                <th className="py-3 ps-4">Product Name</th>
+                <th className="py-3">Price</th>
+                <th className="py-3">Stock Status</th>
                 {userRole === "Admin" && (
-                  <td>
-                    <button
-                      className="btn btn-warning btn-sm-2 me-2"
-                      onClick={() => navigate(`/edit/${p.id}`)}
-                    >
-                      Update
-                    </button>
-                    <button
-                      className="btn btn-danger btn-sm"
-                      onClick={() => handleDelete(p.id)}
-                    >
-                      Delete
-                    </button>
-                  </td>
+                  <th className="py-3 text-end pe-4">Actions</th>
                 )}
               </tr>
-            ))
-          ) : (
-            <tr>
-              <td
-                colSpan={userRole === "Admin" ? "4" : "3"}
-                className="text-center"
-              >
-                No Products Found
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
-      <div className="d-flex justify-content-center align-items-center gap-3 mt-4">
-        <button
-          className="btn btn-secondary"
-          onClick={handlePrev}
-          disabled={page === 1}
-        >
-          Previous
-        </button>
-        <button
-          className="btn btn-secondary"
-          onClick={handleNext}
-          disabled={products.length < pageSize}
-        >
-          Next
-        </button>
+            </thead>
+            <tbody>
+              {products.length > 0 ? (
+                products.map((p) => (
+                  <tr key={p.id} style={{ cursor: "pointer" }}>
+                    {/* Name */}
+                    <td className="ps-4 fw-bold text-dark">
+                      <FaBoxOpen className="text-secondary me-2" />
+                      {p.name}
+                    </td>
+
+                    {/* Price */}
+                    <td className="text-muted">
+                      $
+                      {p.price.toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                      })}
+                    </td>
+
+                    {/* Status Badge */}
+                    <td>
+                      {p.quantity < 10 ? (
+                        <span className="badge bg-danger bg-opacity-10 text-danger px-3 py-2 rounded-pill">
+                          ⚠️ Low Stock ({p.quantity})
+                        </span>
+                      ) : (
+                        <span className="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill">
+                          In Stock ({p.quantity})
+                        </span>
+                      )}
+                    </td>
+
+                    {/* Actions */}
+                    {userRole === "Admin" && (
+                      <td className="text-end pe-4">
+                        <button
+                          className="btn btn-light btn-sm me-2 text-primary"
+                          onClick={() => navigate(`/edit/${p.id}`)}
+                          title="Edit"
+                        >
+                          <FaEdit size={16} />
+                        </button>
+                        <button
+                          className="btn btn-light btn-sm text-danger"
+                          onClick={() => handleDelete(p.id)}
+                          title="Delete"
+                        >
+                          <FaTrash size={16} />
+                        </button>
+                      </td>
+                    )}
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td
+                    colSpan={userRole === "Admin" ? 4 : 3}
+                    className="text-center py-5"
+                  >
+                    <div className="text-muted">
+                      <FaBoxOpen size={40} className="mb-3 opacity-25" />
+                      <p>No products found matching your search.</p>
+                    </div>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* 5. NEW: Card Footer with Pagination */}
+        <div className="card-footer bg-white py-3 d-flex justify-content-between align-items-center border-0">
+          <button
+            className="btn btn-outline-secondary btn-sm"
+            onClick={handlePrev}
+            disabled={page === 1}
+          >
+            &larr; Previous
+          </button>
+
+          <span className="text-muted fw-bold small">Page {page}</span>
+
+          <button
+            className="btn btn-outline-secondary btn-sm"
+            onClick={handleNext}
+            disabled={products.length < pageSize}
+          >
+            Next &rarr;
+          </button>
+        </div>
       </div>
-      <span className="fw-bold">Page {page}</span>
     </div>
   );
 };

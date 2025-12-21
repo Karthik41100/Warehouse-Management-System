@@ -72,6 +72,22 @@ namespace WarehouseSystem.Application.Services
                 _context.Products.Remove(product);
                 await _context.SaveChangesAsync();
             }
-        }        
+        }
+
+        public async Task<DashboardStatsDto> GetDashboardStatsAsync()
+        {
+            var totalProducts = await _context.Products.CountAsync();
+
+            var totalValue = await _context.Products.SumAsync(p => p.Price * p.Quantity);
+
+            var lowStock = await _context.Products.CountAsync(p => p.Quantity < 10);
+
+            return new DashboardStatsDto
+            {
+                TotalProducts = totalProducts,
+                TotalInventoryValue = totalValue,
+                LowStockCount = lowStock
+            };
+        }
     }
 }
